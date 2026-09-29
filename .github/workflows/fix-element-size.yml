@@ -1,0 +1,42 @@
+name: Fix element tile size
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fix tile sizing
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = '.periodic{display:grid;grid-template-columns:repeat(18,minmax(48px,1fr));gap:5px;min-width:900px}'
+          new = '.periodic{display:grid;grid-template-columns:repeat(18,minmax(48px,1fr));gap:5px;min-width:900px;align-items:start}'
+          s = s.replace(old, new)
+          old = '.el{border:2px solid transparent;border-radius:12px;padding:6px;aspect-ratio:1/1.05;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;text-align:center;transition:.15s}'
+          new = '.el{border:2px solid transparent;border-radius:12px;padding:6px;aspect-ratio:1/1;width:100%;height:auto;align-self:start;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;text-align:center;transition:.15s}'
+          s = s.replace(old, new)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          if git diff --cached --quiet; then
+            echo 'No changes needed.'
+          else
+            git commit -m 'Fix periodic table tile sizing'
+            git push
+          fi
