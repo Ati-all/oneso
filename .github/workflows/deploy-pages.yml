@@ -24,16 +24,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
       - name: Add study scripts
         run: |
           python - <<'PY'
           from pathlib import Path
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          for tag in ['<script src="elements-enhanced.js"></script>','<script src="study-details.js"></script>']:
+          for tag in [
+              '<script src="elements-enhanced.js"></script>',
+              '<script src="study-details.js"></script>',
+              '<script src="study-bridge.js"></script>'
+          ]:
               if tag not in s:
                   s=s.replace('</body>',tag+'</body>')
           p.write_text(s,encoding='utf-8')
